@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="FlightClientApp/FlightClientApp.csproj" />
+  <Project Path="FlightStorageService/FlightStorageService.csproj" />
+</Solution>
