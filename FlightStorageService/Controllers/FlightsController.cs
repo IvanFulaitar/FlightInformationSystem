@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Mvc;
 using FlightStorageService.Models;
 using FlightStorageService.Services;
@@ -7,15 +6,12 @@ namespace FlightStorageService.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+// Контролер - точка входу для HTTP-запитів.
+// Приймає запит від клієнта, викликає сервіс та повертає відповідь.
 public class FlightsController : ControllerBase
-//Приймає HTTP-запит.
 {
-    //Контролер працює через інтерфейс, а не через конкретний клас.
-    //Це дозволяє легко замінити реалізацію сервісу, наприклад, для тестування
-    //або якщо в майбутньому буде інша реалізація.
     private readonly IFlightService _flightService;
 
-    //конструкторна ін'єкція. ASP.NET сам створить FlightService і передасть його в контролер.
     public FlightsController(IFlightService flightService)
     {
         _flightService = flightService;
@@ -28,10 +24,84 @@ public class FlightsController : ControllerBase
 
         return Ok(flight);
     }
-    //приклад: GET /api/flights/PS123 
+
     [HttpGet("{flightNumber}")]
     public IActionResult GetByNumber(string flightNumber)
     {
-        return Ok($"Searching flight: {flightNumber}");
+        try
+        {
+            var flight = _flightService.GetByNumber(flightNumber);
+
+            if (flight == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(flight);
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(exception.Message);
+        }
+    }
+
+    [HttpGet]
+    public IActionResult GetByDate(DateTime date)
+    {
+        try
+        {
+            var flights = _flightService.GetByDate(date);
+
+            if (flights.Count == 0)
+            {
+                return NotFound();
+            }
+
+            return Ok(flights);
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(exception.Message);
+        }
+    }
+
+    [HttpGet("departure")]
+    public IActionResult GetByDeparture(string city, DateTime date)
+    {
+        try
+        {
+            var flights = _flightService.GetByDepartureCityAndDate(city, date);
+
+            if (flights.Count == 0)
+            {
+                return NotFound();
+            }
+
+            return Ok(flights);
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(exception.Message);
+        }
+    }
+
+    [HttpGet("arrival")]
+    public IActionResult GetByArrival(string city, DateTime date)
+    {
+        try
+        {
+            var flights = _flightService.GetByArrivalCityAndDate(city, date);
+
+            if (flights.Count == 0)
+            {
+                return NotFound();
+            }
+
+            return Ok(flights);
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(exception.Message);
+        }
     }
 }
