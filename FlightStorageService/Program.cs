@@ -5,16 +5,11 @@ using FlightStorageService.Repositories;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-// Реєструємо сервіс у DI-контейнері.
-// Коли ASP.NET побачить IFlightService у конструкторі,
-// він автоматично створить FlightService і передасть його.
-//
-// Scoped = один екземпляр сервісу на один HTTP-запит.
+
+// Реєструє бізнес-логіку рейсів на один HTTP-запит.
 builder.Services.AddScoped<IFlightService, FlightService>();
 
-// Реєструємо репозиторій у DI-контейнері.
-// Коли FlightService попросить IFlightRepository,
-// ASP.NET створить FlightRepository і передасть його в сервіс.
+// Реєструє доступ до сховища рейсів на один HTTP-запит.
 builder.Services.AddScoped<IFlightRepository, FlightRepository>();
 
 builder.Services.AddOpenApi();
@@ -28,9 +23,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// У мене тут будуть контролери,
-// які будуть обробляти запити від клієнтів
-// і взаємодіяти з базою даних для зберігання інформації про рейси.
+// Підключає маршрути контролерів.
 app.MapControllers();
 
 app.Run();

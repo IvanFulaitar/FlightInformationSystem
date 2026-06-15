@@ -1,6 +1,6 @@
 namespace FlightStorageService.Models;
 
-//клас який допоможе зберігати інформацію про рейси, які будуть збережені в базі даних
+// Модель рейсу, яка зберігається у базі даних.
 public class Flight
 {
     public string FlightNumber { get; set; } = string.Empty;

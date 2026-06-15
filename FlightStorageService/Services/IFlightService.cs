@@ -4,8 +4,6 @@ namespace FlightStorageService.Services;
 
 public interface IFlightService
 {
-    Flight GetTestFlight();
-
     Flight? GetByNumber(string flightNumber);
 
     List<Flight> GetByDate(DateTime date);
@@ -13,4 +11,12 @@ public interface IFlightService
     List<Flight> GetByDepartureCityAndDate(string city, DateTime date);
 
     List<Flight> GetByArrivalCityAndDate(string city, DateTime date);
+
+    List<Flight> GetAll();
+
+    void AddFlight(Flight flight);
+
+    void UpdateFlight(string flightNumber, Flight flight);
+
+    void DeleteFlight(string flightNumber);
 }
