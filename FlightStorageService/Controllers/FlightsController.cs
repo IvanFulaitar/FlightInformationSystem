@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using FlightStorageService.Services;
 using FlightStorageService.Models;
+using FlightStorageService.Exceptions;
 
 namespace FlightStorageService.Controllers;
 
@@ -53,18 +54,13 @@ public class FlightsController : ControllerBase
     // Приклад:
     // GET /api/flights?date=2026-06-15
     //
-    // Повертає список рейсів або 404, якщо рейсів на цю дату немає.
+    // Повертає список рейсів або порожній список, якщо рейсів на цю дату немає.
     [HttpGet]
     public IActionResult GetByDate(DateTime date)
     {
         try
         {
             var flights = _flightService.GetByDate(date);
-
-            if (flights.Count == 0)
-            {
-                return NotFound();
-            }
 
             return Ok(flights);
         }
@@ -87,11 +83,6 @@ public class FlightsController : ControllerBase
         {
             var flights = _flightService.GetByDepartureCityAndDate(city, date);
 
-            if (flights.Count == 0)
-            {
-                return NotFound();
-            }
-
             return Ok(flights);
         }
         catch (ArgumentException exception)
@@ -111,11 +102,6 @@ public class FlightsController : ControllerBase
         try
         {
             var flights = _flightService.GetByArrivalCityAndDate(city, date);
-
-            if (flights.Count == 0)
-            {
-                return NotFound();
-            }
 
             return Ok(flights);
         }
@@ -148,6 +134,10 @@ public class FlightsController : ControllerBase
         {
             return BadRequest(exception.Message);
         }
+        catch (DuplicateFlightException exception)
+        {
+            return Conflict(exception.Message);
+        }
     }
 
 
@@ -156,11 +146,6 @@ public class FlightsController : ControllerBase
     public IActionResult GetAll()
     {
         var flights = _flightService.GetAll();
-
-        if (flights.Count == 0)
-        {
-            return NotFound();
-        }
 
         return Ok(flights);
     }

@@ -1,50 +1,53 @@
-# FlightInformationSystem
+# Flight Information System
 
-FlightInformationSystem is a .NET solution for storing and retrieving flight information.
+Flight Information System is a .NET solution for storing, managing, and searching flight information.
 
-## Projects
+The solution contains two applications:
 
-- `FlightClientApp` - ASP.NET Core MVC client application.
-- `FlightStorageService` - ASP.NET Core Web API for flight data storage.
+- `FlightStorageService` - ASP.NET Core Web API for storing and retrieving flight data.
+- `FlightClientApp` - ASP.NET Core MVC client application for searching flights through the API.
+
+## Technologies
+
+- .NET
+- ASP.NET Core Web API
+- ASP.NET Core MVC
+- PostgreSQL
+- Npgsql
+- Dapper
+- Bootstrap
+
+## Solution Structure
+
+```text
+FlightInformationSystem/
+├── FlightStorageService/
+│   ├── Controllers/
+│   ├── Models/
+│   ├── Repositories/
+│   ├── Services/
+│   └── Database/
+├── FlightClientApp/
+│   ├── Controllers/
+│   ├── Models/
+│   ├── Views/
+│   └── wwwroot/
+└── README.md
+```
 
 ## FlightStorageService
 
-The storage service exposes HTTP endpoints for working with flights stored in PostgreSQL.
+`FlightStorageService` is the backend API. It stores flight data in PostgreSQL and exposes REST endpoints for creating, updating, deleting, and searching flights.
 
-### Tech Stack
+Main responsibilities:
 
-- .NET 10
-- ASP.NET Core Web API
-- PostgreSQL
-- Npgsql
+- Store flight information.
+- Validate flight data.
+- Search flights by number, date, departure city, or arrival city.
+- Execute SQL queries through Dapper and Npgsql.
+- Return JSON responses for client applications and Postman.
 
-### Configuration
-
-The PostgreSQL connection string is configured in:
-
-```text
-FlightStorageService/appsettings.json
-```
-
-Default connection string:
-
-```text
-Host=localhost;Port=5432;Database=flights_db;Username=postgres;Password=postgres
-```
-
-The service expects a `flights` table with these columns:
-
-```sql
-flight_number text
-departure_datetime timestamp
-departure_airport_city text
-arrival_airport_city text
-duration_minutes integer
-```
-
-### API Endpoints
-
-Base route:
+API base URL:
 
 ```text
 http://localhost:5294/api/flights
@@ -52,83 +55,91 @@ http://localhost:5294/api/flights
 
 Available endpoints:
 
-- `GET /api/flights/all` - get all flights.
-- `GET /api/flights/{flightNumber}` - get a flight by flight number.
-- `GET /api/flights?date=2026-06-15` - get flights by departure date.
-- `GET /api/flights/departure?city=Kyiv&date=2026-06-15` - get flights by departure city and date.
-- `GET /api/flights/arrival?city=London&date=2026-06-15` - get flights by arrival city and date.
-- `POST /api/flights` - create a new flight.
-- `PUT /api/flights/{flightNumber}` - update an existing flight.
-- `DELETE /api/flights/{flightNumber}` - delete a flight.
+- `GET /api/flights/all`
+- `GET /api/flights/{flightNumber}`
+- `GET /api/flights?date=YYYY-MM-DD`
+- `GET /api/flights/departure?city=Kyiv&date=YYYY-MM-DD`
+- `GET /api/flights/arrival?city=London&date=YYYY-MM-DD`
+- `POST /api/flights`
+- `PUT /api/flights/{flightNumber}`
+- `DELETE /api/flights/{flightNumber}`
 
-Example request body for `POST`:
+## FlightClientApp
 
-```json
-{
-  "flightNumber": "PS123",
-  "departureDateTime": "2026-06-15T10:30:00",
-  "departureAirportCity": "Kyiv",
-  "arrivalAirportCity": "London",
-  "durationMinutes": 180
-}
-```
+`FlightClientApp` is the web client project. The flight search UI is planned and will call `FlightStorageService` through HTTP.
 
-Example request body for `PUT /api/flights/PS123`:
+Planned UI features:
 
-```json
-{
-  "departureDateTime": "2026-06-15T10:30:00",
-  "departureAirportCity": "Kyiv",
-  "arrivalAirportCity": "London",
-  "durationMinutes": 180
-}
-```
+- Search flight by flight number.
+- Search flights by departure date.
+- Search flights by departure city and date.
+- Search flights by arrival city and date.
+- Display results with flight number, departure time, departure city, arrival city, and duration.
 
-### Expected Responses
+## Database
 
-- `200 OK` - data was found and returned.
-- `201 Created` - a new flight was created.
-- `204 No Content` - a flight was updated or deleted.
-- `400 Bad Request` - request data failed validation.
-- `404 Not Found` - no matching flight was found.
+The project uses PostgreSQL.
 
-### Postman Test Checklist
+Before running the API:
 
-Positive cases:
-
-- `POST /api/flights` - create a flight.
-- `GET /api/flights/{flightNumber}` - get the created flight by number.
-- `GET /api/flights/all` - get all flights.
-- `GET /api/flights?date=2026-06-15` - get flights by date.
-- `GET /api/flights/departure?city=Kyiv&date=2026-06-15` - get flights by departure city and date.
-- `GET /api/flights/arrival?city=London&date=2026-06-15` - get flights by arrival city and date.
-- `PUT /api/flights/{flightNumber}` - update a flight.
-- `DELETE /api/flights/{flightNumber}` - delete a flight.
-
-Negative cases:
-
-- `POST /api/flights` with an empty `flightNumber` should return `400 Bad Request`.
-- `POST /api/flights` with `durationMinutes: 0` should return `400 Bad Request`.
-- `PUT /api/flights/UNKNOWN` should return `404 Not Found`.
-- `DELETE /api/flights/UNKNOWN` should return `404 Not Found`.
-- `GET /api/flights?date=2099-01-01` should return `404 Not Found` when there are no flights for that date.
-
-OpenAPI JSON is available in development mode:
+1. Create a PostgreSQL database.
+2. Run the database script:
 
 ```text
-http://localhost:5294/openapi/v1.json
+FlightStorageService/Database/schema.sql
 ```
 
-## Getting Started
+3. Set the connection string in:
 
-Restore and build:
+```text
+FlightStorageService/appsettings.json
+```
+
+Example connection string:
+
+```text
+Host=localhost;Port=5432;Database=flights_db;Username=postgres;Password=postgres
+```
+
+Example database creation commands:
+
+```powershell
+createdb -U postgres flights_db
+psql -U postgres -d flights_db -f FlightStorageService/Database/schema.sql
+```
+
+You can also create the database manually through pgAdmin and then run `schema.sql` in the query tool.
+
+Important: `schema.sql` recreates the `flights` table. Existing data in that table will be deleted when the script is executed.
+
+The database stores flights with these fields:
+
+- `flight_number`
+- `departure_datetime`
+- `departure_airport_city`
+- `arrival_airport_city`
+- `duration_minutes`
+
+Database constraints:
+
+- `flight_number` is the primary key and has a maximum length of 10 characters.
+- Required fields are `NOT NULL`.
+- `duration_minutes` must be greater than `0`.
+- Departure and arrival cities must be different, case-insensitively.
+- `departure_datetime` must be within the current date and the next 7 days.
+
+The project uses direct SQL queries through Dapper and Npgsql. Entity Framework is not used.
+
+## How To Run
+
+Restore and build the solution:
 
 ```powershell
 dotnet restore
 dotnet build
 ```
 
-Run the storage service:
+Run the backend API:
 
 ```powershell
 dotnet run --project FlightStorageService
@@ -140,8 +151,118 @@ Run the client application:
 dotnet run --project FlightClientApp
 ```
 
-OpenAPI is available in development mode at the URL exposed by ASP.NET Core for the service.
+After starting `FlightStorageService`, test the API through Postman or Swagger UI.
 
-## Git
+The client application is included in the solution, but the flight search UI is still in progress.
 
-The repository ignores local IDE files and generated build output such as `.vs/`, `bin/`, and `obj/`.
+## Example API Request
+
+Get all flights:
+
+```http
+GET /api/flights/all
+```
+
+Get a flight by number:
+
+```http
+GET /api/flights/PS123
+```
+
+Get flights by departure date:
+
+```http
+GET /api/flights?date=2026-06-20
+```
+
+Get flights by departure city and date:
+
+```http
+GET /api/flights/departure?city=Kyiv&date=2026-06-20
+```
+
+Get flights by arrival city and date:
+
+```http
+GET /api/flights/arrival?city=London&date=2026-06-20
+```
+
+Create a flight:
+
+```http
+POST /api/flights
+Content-Type: application/json
+```
+
+```json
+{
+  "flightNumber": "PS123",
+  "departureDateTime": "2026-06-20T10:30:00",
+  "departureAirportCity": "Kyiv",
+  "arrivalAirportCity": "London",
+  "durationMinutes": 180
+}
+```
+
+## Expected API Responses
+
+- `200 OK` - data was returned successfully.
+- `200 OK` with `[]` - no flights were found for a list request.
+- `201 Created` - a new flight was created.
+- `204 No Content` - a flight was updated or deleted.
+- `400 Bad Request` - request data failed validation.
+- `404 Not Found` - a single requested flight was not found.
+- `409 Conflict` - a flight with the same flight number already exists.
+- `500 Internal Server Error` - unexpected server error.
+
+## Postman Checklist
+
+Positive scenarios:
+
+- Create a valid flight.
+- Get a flight by flight number.
+- Get all flights.
+- Get flights by date.
+- Get flights by departure city and date.
+- Get flights by arrival city and date.
+- Update an existing flight.
+- Delete an existing flight.
+
+Negative scenarios:
+
+- Create a flight with an empty flight number.
+- Create a flight with duplicate flight number.
+- Create a flight with `durationMinutes` equal to `0`.
+- Create a flight with negative `durationMinutes`.
+- Create a flight with the same departure and arrival city.
+- Search by an empty city.
+- Update a non-existing flight.
+- Delete a non-existing flight.
+- Request a non-existing flight by number.
+
+Edge cases:
+
+- Search for a date that has no flights.
+- Search using different city letter casing.
+- Create a flight with leading or trailing spaces.
+- Send invalid JSON.
+
+## OpenAPI
+
+OpenAPI JSON is available in development mode:
+
+```text
+http://localhost:5294/openapi/v1.json
+```
+
+Swagger UI is available in development mode:
+
+```text
+http://localhost:5294/swagger
+```
+
+## Notes
+
+- Database access is implemented with PostgreSQL, Npgsql, and SQL queries through Dapper.
+- Entity Framework is not used.
+- Generated build output such as `bin/` and `obj/` should not be committed.
