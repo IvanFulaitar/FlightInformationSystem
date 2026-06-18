@@ -73,7 +73,7 @@ public class FlightRepository : IFlightRepository
                 arrival_airport_city AS ArrivalAirportCity,
                 duration_minutes AS DurationMinutes
             FROM flights
-            WHERE departure_airport_city = @City
+            WHERE lower(btrim(departure_airport_city)) = lower(btrim(@City))
               AND departure_datetime::date = @Date
             ORDER BY departure_datetime;
             """;
@@ -100,7 +100,7 @@ public class FlightRepository : IFlightRepository
                 arrival_airport_city AS ArrivalAirportCity,
                 duration_minutes AS DurationMinutes
             FROM flights
-            WHERE arrival_airport_city = @City
+            WHERE lower(btrim(arrival_airport_city)) = lower(btrim(@City))
               AND departure_datetime::date = @Date
             ORDER BY departure_datetime;
             """;
@@ -165,6 +165,11 @@ public class FlightRepository : IFlightRepository
         {
             throw new DuplicateFlightException("Flight number already exists.");
         }
+        catch (PostgresException exception)
+            when (exception.SqlState == PostgresErrorCodes.CheckViolation)
+        {
+            throw new ArgumentException(exception.MessageText);
+        }
     }
 
     public void UpdateFlight(string flightNumber, Flight flight)
@@ -180,16 +185,26 @@ public class FlightRepository : IFlightRepository
             WHERE flight_number = @FlightNumber;
             """;
 
-        var rowsAffected = connection.Execute(
-            sql,
-            new
-            {
-                FlightNumber = flightNumber,
-                flight.DepartureDateTime,
-                flight.DepartureAirportCity,
-                flight.ArrivalAirportCity,
-                flight.DurationMinutes
-            });
+        int rowsAffected;
+
+        try
+        {
+            rowsAffected = connection.Execute(
+                sql,
+                new
+                {
+                    FlightNumber = flightNumber,
+                    flight.DepartureDateTime,
+                    flight.DepartureAirportCity,
+                    flight.ArrivalAirportCity,
+                    flight.DurationMinutes
+                });
+        }
+        catch (PostgresException exception)
+            when (exception.SqlState == PostgresErrorCodes.CheckViolation)
+        {
+            throw new ArgumentException(exception.MessageText);
+        }
 
         if (rowsAffected == 0)
         {

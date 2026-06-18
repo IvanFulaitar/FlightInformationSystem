@@ -30,6 +30,9 @@ public class FlightsController : ControllerBase
     // 404 Not Found - якщо рейс відсутній
     // 400 Bad Request - якщо номер рейсу некоректний
     [HttpGet("{flightNumber}")]
+    [ProducesResponseType(typeof(Flight), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult GetByNumber(string flightNumber)
     {
         try
@@ -56,6 +59,8 @@ public class FlightsController : ControllerBase
     //
     // Повертає список рейсів або порожній список, якщо рейсів на цю дату немає.
     [HttpGet]
+    [ProducesResponseType(typeof(List<Flight>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult GetByDate(DateTime date)
     {
         try
@@ -77,6 +82,8 @@ public class FlightsController : ControllerBase
     //
     // Повертає список знайдених рейсів або 404, якщо збігів немає.
     [HttpGet("departure")]
+    [ProducesResponseType(typeof(List<Flight>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult GetByDeparture(string city, DateTime date)
     {
         try
@@ -97,6 +104,8 @@ public class FlightsController : ControllerBase
     //
     // Повертає список знайдених рейсів або 404, якщо збігів немає.
     [HttpGet("arrival")]
+    [ProducesResponseType(typeof(List<Flight>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult GetByArrival(string city, DateTime date)
     {
         try
@@ -119,10 +128,15 @@ public class FlightsController : ControllerBase
     // 201 Created - якщо рейс успішно створено
     // 400 Bad Request - якщо дані не пройшли валідацію
     [HttpPost]
-    public IActionResult AddFlight([FromBody] Flight flight)
+    [ProducesResponseType(typeof(Flight), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public IActionResult AddFlight([FromBody] CreateFlightRequest request)
     {
         try
         {
+            var flight = ToFlight(request);
+
             _flightService.AddFlight(flight);
 
             return CreatedAtAction(
@@ -143,6 +157,7 @@ public class FlightsController : ControllerBase
 
     // Отримати всі рейси.
     [HttpGet("all")]
+    [ProducesResponseType(typeof(List<Flight>), StatusCodes.Status200OK)]
     public IActionResult GetAll()
     {
         var flights = _flightService.GetAll();
@@ -152,10 +167,15 @@ public class FlightsController : ControllerBase
 
     // Оновити існуючий рейс за номером.
     [HttpPut("{flightNumber}")]
-    public IActionResult UpdateFlight(string flightNumber, [FromBody] Flight flight)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public IActionResult UpdateFlight(string flightNumber, [FromBody] UpdateFlightRequest request)
     {
         try
         {
+            var flight = ToFlight(request);
+
             _flightService.UpdateFlight(flightNumber, flight);
             return NoContent();
         }
@@ -171,6 +191,9 @@ public class FlightsController : ControllerBase
 
     // Видалити рейс за номером.
     [HttpDelete("{flightNumber}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult DeleteFlight(string flightNumber)
     {
         try
@@ -186,5 +209,28 @@ public class FlightsController : ControllerBase
         {
             return NotFound(exception.Message);
         }
+    }
+
+    private static Flight ToFlight(CreateFlightRequest request)
+    {
+        return new Flight
+        {
+            FlightNumber = request.FlightNumber,
+            DepartureDateTime = request.DepartureDateTime,
+            DepartureAirportCity = request.DepartureAirportCity,
+            ArrivalAirportCity = request.ArrivalAirportCity,
+            DurationMinutes = request.DurationMinutes
+        };
+    }
+
+    private static Flight ToFlight(UpdateFlightRequest request)
+    {
+        return new Flight
+        {
+            DepartureDateTime = request.DepartureDateTime,
+            DepartureAirportCity = request.DepartureAirportCity,
+            ArrivalAirportCity = request.ArrivalAirportCity,
+            DurationMinutes = request.DurationMinutes
+        };
     }
 }

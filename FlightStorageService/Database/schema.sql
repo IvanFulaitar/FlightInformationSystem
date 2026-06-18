@@ -30,7 +30,8 @@ RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.departure_datetime::date < CURRENT_DATE
        OR NEW.departure_datetime::date > CURRENT_DATE + INTERVAL '7 days' THEN
-        RAISE EXCEPTION 'Flight date must be within the next 7 days.';
+        RAISE EXCEPTION 'Flight date must be within the next 7 days.'
+            USING ERRCODE = '23514';
     END IF;
 
     RETURN NEW;
@@ -46,7 +47,7 @@ CREATE INDEX idx_flights_departure_date
 ON flights (departure_datetime);
 
 CREATE INDEX idx_flights_departure_city_date
-ON flights (departure_airport_city, departure_datetime);
+ON flights (lower(btrim(departure_airport_city)), departure_datetime);
 
 CREATE INDEX idx_flights_arrival_city_date
-ON flights (arrival_airport_city, departure_datetime);
+ON flights (lower(btrim(arrival_airport_city)), departure_datetime);

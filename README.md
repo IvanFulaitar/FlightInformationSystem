@@ -17,6 +17,8 @@ The solution contains two applications:
 - Dapper
 - Bootstrap
 
+Note: the original database requirement was adjusted by agreement to PostgreSQL with SQL queries executed through Dapper and Npgsql.
+
 ## Solution Structure
 
 ```text
@@ -154,6 +156,12 @@ dotnet run --project FlightClientApp
 After starting `FlightStorageService`, test the API through Postman or Swagger UI.
 
 The client application is included in the solution, but the flight search UI is still in progress.
+
+A Postman collection is available at:
+
+```text
+Postman/FlightInformationSystem.postman_collection.json
+```
 
 ## Example API Request
 

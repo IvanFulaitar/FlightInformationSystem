@@ -1,0 +1,132 @@
+{
+  "info": {
+    "name": "Flight Information System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5294"
+    },
+    {
+      "key": "flightNumber",
+      "value": "PS123"
+    },
+    {
+      "key": "date",
+      "value": "2026-06-20"
+    }
+  ],
+  "item": [
+    {
+      "name": "Create Flight",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/flights",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"flightNumber\": \"{{flightNumber}}\",\n  \"departureDateTime\": \"2026-06-20T10:30:00\",\n  \"departureAirportCity\": \"Kyiv\",\n  \"arrivalAirportCity\": \"London\",\n  \"durationMinutes\": 180\n}"
+        }
+      }
+    },
+    {
+      "name": "Get All Flights",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/flights/all"
+      }
+    },
+    {
+      "name": "Get Flight By Number",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/flights/{{flightNumber}}"
+      }
+    },
+    {
+      "name": "Get Flights By Date",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/flights?date={{date}}"
+      }
+    },
+    {
+      "name": "Get Flights By Departure City And Date",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/flights/departure?city=kyiv&date={{date}}"
+      }
+    },
+    {
+      "name": "Get Flights By Arrival City And Date",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/flights/arrival?city=london&date={{date}}"
+      }
+    },
+    {
+      "name": "Update Flight",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/flights/{{flightNumber}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"departureDateTime\": \"2026-06-20T12:00:00\",\n  \"departureAirportCity\": \"Kyiv\",\n  \"arrivalAirportCity\": \"Paris\",\n  \"durationMinutes\": 190\n}"
+        }
+      }
+    },
+    {
+      "name": "Delete Flight",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/api/flights/{{flightNumber}}"
+      }
+    },
+    {
+      "name": "Negative - Duplicate Flight",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/flights",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"flightNumber\": \"{{flightNumber}}\",\n  \"departureDateTime\": \"2026-06-20T10:30:00\",\n  \"departureAirportCity\": \"Kyiv\",\n  \"arrivalAirportCity\": \"London\",\n  \"durationMinutes\": 180\n}"
+        }
+      }
+    },
+    {
+      "name": "Negative - Same Cities",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/flights",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"flightNumber\": \"PS999\",\n  \"departureDateTime\": \"2026-06-20T10:30:00\",\n  \"departureAirportCity\": \"Kyiv\",\n  \"arrivalAirportCity\": \"kyiv\",\n  \"durationMinutes\": 180\n}"
+        }
+      }
+    }
+  ]
+}
