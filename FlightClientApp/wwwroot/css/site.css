@@ -19,6 +19,11 @@ html {
 
 body {
   margin-bottom: 60px;
+  background-color: #f8fafc;
+}
+
+.card {
+  border-radius: 0.5rem;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {

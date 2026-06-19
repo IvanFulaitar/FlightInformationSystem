@@ -14,7 +14,6 @@ builder.Services.AddScoped<IFlightService, FlightService>();
 // Реєструє доступ до сховища рейсів на один HTTP-запит.
 builder.Services.AddScoped<IFlightRepository, FlightRepository>();
 
-builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -54,7 +53,6 @@ app.UseExceptionHandler(exceptionHandlerApp =>
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
@@ -65,3 +63,4 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 app.Run();
+

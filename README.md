@@ -68,14 +68,17 @@ Available endpoints:
 
 ## FlightClientApp
 
-`FlightClientApp` is the web client project. The flight search UI is planned and will call `FlightStorageService` through HTTP.
+`FlightClientApp` is the ASP.NET Core MVC web client. It calls `FlightStorageService` through HTTP and displays flight search results in a table.
 
-Planned UI features:
+Implemented UI features:
 
 - Search flight by flight number.
 - Search flights by departure date.
 - Search flights by departure city and date.
 - Search flights by arrival city and date.
+- Create a new flight.
+- Update an existing flight by flight number.
+- Delete an existing flight by flight number.
 - Display results with flight number, departure time, departure city, arrival city, and duration.
 
 ## Database
@@ -155,7 +158,7 @@ dotnet run --project FlightClientApp
 
 After starting `FlightStorageService`, test the API through Postman or Swagger UI.
 
-The client application is included in the solution, but the flight search UI is still in progress.
+The client application provides search forms and CRUD forms for the available backend API operations.
 
 A Postman collection is available at:
 
@@ -260,7 +263,7 @@ Edge cases:
 OpenAPI JSON is available in development mode:
 
 ```text
-http://localhost:5294/openapi/v1.json
+http://localhost:5294/swagger/v1/swagger.json
 ```
 
 Swagger UI is available in development mode:
@@ -274,3 +277,6 @@ http://localhost:5294/swagger
 - Database access is implemented with PostgreSQL, Npgsql, and SQL queries through Dapper.
 - Entity Framework is not used.
 - Generated build output such as `bin/` and `obj/` should not be committed.
+
+
+
