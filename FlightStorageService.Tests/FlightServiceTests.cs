@@ -61,6 +61,24 @@ public class FlightServiceTests
     }
 
     [Fact]
+    public void GetByCity_WithEmptyCity_ThrowsArgumentException()
+    {
+        var service = new FlightService(new FakeFlightRepository());
+
+        Assert.Throws<ArgumentException>(() => service.GetByCity(" "));
+    }
+
+    [Fact]
+    public void GetByCity_WithValidCity_TrimsCityAndCallsRepository()
+    {
+        var repository = new FakeFlightRepository();
+        var service = new FlightService(repository);
+
+        service.GetByCity(" Kyiv ");
+
+        Assert.Equal("Kyiv", repository.RequestedCity);
+    }
+    [Fact]
     public void AddFlight_WithValidFlight_CallsRepository()
     {
         var repository = new FakeFlightRepository();
@@ -94,6 +112,8 @@ public class FlightServiceTests
 
         public Flight? AddedFlight { get; private set; }
 
+        public string? RequestedCity { get; private set; }
+
         public Flight? GetByNumber(string flightNumber)
         {
             return ExistingFlight;
@@ -119,6 +139,11 @@ public class FlightServiceTests
             return new List<Flight>();
         }
 
+        public List<Flight> GetByCity(string city)
+        {
+            RequestedCity = city;
+            return new List<Flight>();
+        }
         public void AddFlight(Flight flight)
         {
             AddFlightWasCalled = true;
@@ -134,3 +159,6 @@ public class FlightServiceTests
         }
     }
 }
+
+
+

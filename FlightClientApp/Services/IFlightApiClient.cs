@@ -14,6 +14,8 @@ public interface IFlightApiClient
 
     Task<List<FlightViewModel>> GetByArrivalCityAndDateAsync(string city, DateTime date);
 
+    Task<List<FlightViewModel>> GetByCityAsync(string city);
+
     Task CreateAsync(FlightViewModel flight);
 
     Task UpdateAsync(string flightNumber, FlightViewModel flight);

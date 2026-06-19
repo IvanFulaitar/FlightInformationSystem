@@ -165,6 +165,26 @@ public class FlightsController : ControllerBase
         return Ok(flights);
     }
 
+
+    // Пошук рейсів за містом відправлення або прибуття.
+    [HttpGet("city")]
+    [ProducesResponseType(typeof(List<Flight>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public IActionResult GetByCity(string city)
+    {
+        try
+        {
+            var flights = _flightService.GetByCity(city);
+            return Ok(flights);
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(exception.Message);
+        }
+    }
+
+
+
     // Оновити існуючий рейс за номером.
     [HttpPut("{flightNumber}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

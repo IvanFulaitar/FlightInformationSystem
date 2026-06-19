@@ -62,6 +62,16 @@ public class FlightService : IFlightService
         return _flightRepository.GetByArrivalCityAndDate(city, date);
     }
 
+    public List<Flight> GetByCity(string city)
+    {
+        if (string.IsNullOrWhiteSpace(city))
+        {
+            throw new ArgumentException("City is required.");
+        }
+
+        return _flightRepository.GetByCity(city.Trim());
+    }
+
     public void AddFlight(Flight flight)
     {
         ValidateFlight(flight, requireFlightNumber: true);

@@ -101,6 +101,21 @@ public class HomeController : Controller
     }
 
     [HttpPost]
+    public async Task<IActionResult> SearchByCity(FlightSearchViewModel model)
+    {
+        if (string.IsNullOrWhiteSpace(model.City))
+        {
+            model.ErrorMessage = "City is required.";
+            return View("Index", model);
+        }
+
+        model.SearchDescription = $"Departure or arrival city: {model.City.Trim()}";
+
+        return View("Index", await LoadResultsAsync(
+            model,
+            () => _flightApiClient.GetByCityAsync(model.City.Trim())));
+    }
+    [HttpPost]
     public async Task<IActionResult> CreateFlight(FlightSearchViewModel model)
     {
         try
@@ -193,3 +208,6 @@ public class HomeController : Controller
         return model;
     }
 }
+
+
+

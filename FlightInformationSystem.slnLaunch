@@ -1,0 +1,21 @@
+[
+  {
+    "Name": "Backend + Frontend",
+    "Projects": [
+      {
+        "Path": "FlightStorageService\\FlightStorageService.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "FlightClientApp\\FlightClientApp.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "FlightStorageService.Tests\\FlightStorageService.Tests.csproj",
+        "Action": "None"
+      }
+    ]
+  }
+]

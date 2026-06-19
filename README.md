@@ -62,6 +62,7 @@ Available endpoints:
 - `GET /api/flights?date=YYYY-MM-DD`
 - `GET /api/flights/departure?city=Kyiv&date=YYYY-MM-DD`
 - `GET /api/flights/arrival?city=London&date=YYYY-MM-DD`
+- `GET /api/flights/city?city=Kyiv`
 - `POST /api/flights`
 - `PUT /api/flights/{flightNumber}`
 - `DELETE /api/flights/{flightNumber}`
@@ -76,6 +77,7 @@ Implemented UI features:
 - Search flights by departure date.
 - Search flights by departure city and date.
 - Search flights by arrival city and date.
+- Search flights by departure or arrival city.
 - Create a new flight.
 - Update an existing flight by flight number.
 - Delete an existing flight by flight number.
@@ -198,6 +200,12 @@ Get flights by arrival city and date:
 GET /api/flights/arrival?city=London&date=2026-06-20
 ```
 
+Get flights by departure or arrival city:
+
+```http
+GET /api/flights/city?city=Kyiv
+```
+
 Create a flight:
 
 ```http
@@ -236,6 +244,7 @@ Positive scenarios:
 - Get flights by date.
 - Get flights by departure city and date.
 - Get flights by arrival city and date.
+- Get flights by departure or arrival city.
 - Update an existing flight.
 - Delete an existing flight.
 
@@ -277,6 +286,8 @@ http://localhost:5294/swagger
 - Database access is implemented with PostgreSQL, Npgsql, and SQL queries through Dapper.
 - Entity Framework is not used.
 - Generated build output such as `bin/` and `obj/` should not be committed.
+
+
 
 
 

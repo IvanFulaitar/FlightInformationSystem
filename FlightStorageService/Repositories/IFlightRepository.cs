@@ -14,6 +14,8 @@ public interface IFlightRepository
 
     List<Flight> GetAll();
 
+    List<Flight> GetByCity(string city);
+
     void AddFlight(Flight flight);
 
     void UpdateFlight(string flightNumber, Flight flight);

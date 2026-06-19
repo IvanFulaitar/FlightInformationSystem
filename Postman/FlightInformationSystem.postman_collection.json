@@ -15,6 +15,10 @@
     {
       "key": "date",
       "value": "2026-06-20"
+    },
+    {
+      "key": "city",
+      "value": "Kyiv"
     }
   ],
   "item": [
@@ -68,6 +72,13 @@
       "request": {
         "method": "GET",
         "url": "{{baseUrl}}/api/flights/arrival?city=london&date={{date}}"
+      }
+    },
+    {
+      "name": "Get Flights By City",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/flights/city?city={{city}}"
       }
     },
     {

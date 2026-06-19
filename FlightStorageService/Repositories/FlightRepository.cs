@@ -133,6 +133,30 @@ public class FlightRepository : IFlightRepository
         return connection.Query<Flight>(sql).ToList();
     }
 
+    public List<Flight> GetByCity(string city)
+    {
+        using var connection = new NpgsqlConnection(_connectionString);
+
+        const string sql = """
+        SELECT
+            flight_number AS FlightNumber,
+            departure_datetime AS DepartureDateTime,
+            departure_airport_city AS DepartureAirportCity,
+            arrival_airport_city AS ArrivalAirportCity,
+            duration_minutes AS DurationMinutes
+        FROM flights
+        WHERE lower(btrim(departure_airport_city)) = lower(btrim(@City))
+           OR lower(btrim(arrival_airport_city)) = lower(btrim(@City))
+        ORDER BY departure_datetime;
+        """;
+
+        return connection.Query<Flight>(
+            sql, new {City=city}
+            ).ToList();
+
+    }
+
+
     public void AddFlight(Flight flight)
     {
         using var connection = new NpgsqlConnection(_connectionString);

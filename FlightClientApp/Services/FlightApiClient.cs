@@ -51,6 +51,13 @@ public class FlightApiClient : IFlightApiClient
         return await GetListAsync(url);
     }
 
+    public async Task<List<FlightViewModel>> GetByCityAsync(string city)
+    {
+        var url = $"api/flights/city?city={Uri.EscapeDataString(city)}";
+
+        return await GetListAsync(url);
+    }
+
     public async Task CreateAsync(FlightViewModel flight)
     {
         var response = await _httpClient.PostAsJsonAsync("api/flights", flight);
