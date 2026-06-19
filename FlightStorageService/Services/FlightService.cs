@@ -25,7 +25,14 @@ public class FlightService : IFlightService
 
         flightNumber = NormalizeFlightNumber(flightNumber);
 
-        return _flightRepository.GetByNumber(flightNumber);
+        var flight = _flightRepository.GetByNumber(flightNumber);
+
+        if (flight == null)
+        {
+            throw new FlightNotFoundException("Flight not found.");
+        }
+
+        return flight;
     }
 
     public List<Flight> GetByDate(DateTime date)
@@ -110,7 +117,7 @@ public class FlightService : IFlightService
 
         if (existingFlight == null)
         {
-            throw new KeyNotFoundException("Flight not found.");
+            throw new FlightNotFoundException("Flight not found.");
         }
 
         _flightRepository.UpdateFlight(flightNumber, flight);
@@ -129,7 +136,7 @@ public class FlightService : IFlightService
 
         if (existingFlight == null)
         {
-            throw new KeyNotFoundException("Flight not found.");
+            throw new FlightNotFoundException("Flight not found.");
         }
 
         _flightRepository.DeleteFlight(flightNumber);

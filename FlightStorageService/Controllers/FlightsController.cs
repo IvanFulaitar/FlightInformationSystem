@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using FlightStorageService.Services;
 using FlightStorageService.Models;
-using FlightStorageService.Exceptions;
 
 namespace FlightStorageService.Controllers;
 
@@ -12,7 +11,6 @@ namespace FlightStorageService.Controllers;
 public class FlightsController : ControllerBase
 {
     private readonly IFlightService _flightService;
-
 
     // Контролер працює з бізнес-логікою через сервісний шар.
     public FlightsController(IFlightService flightService)
@@ -35,21 +33,9 @@ public class FlightsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult GetByNumber(string flightNumber)
     {
-        try
-        {
-            var flight = _flightService.GetByNumber(flightNumber);
+        var flight = _flightService.GetByNumber(flightNumber);
 
-            if (flight == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(flight);
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(exception.Message);
-        }
+        return Ok(flight);
     }
 
     // Отримати всі рейси на конкретну дату.
@@ -63,16 +49,9 @@ public class FlightsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult GetByDate(DateTime date)
     {
-        try
-        {
-            var flights = _flightService.GetByDate(date);
+        var flights = _flightService.GetByDate(date);
 
-            return Ok(flights);
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(exception.Message);
-        }
+        return Ok(flights);
     }
 
     // Пошук рейсів за містом відправлення та датою.
@@ -80,82 +59,39 @@ public class FlightsController : ControllerBase
     // Приклад:
     // GET /api/flights/departure?city=Kyiv&date=2026-06-15
     //
-    // Повертає список знайдених рейсів або 404, якщо збігів немає.
+    // Повертає список знайдених рейсів або порожній список, якщо збігів немає.
     [HttpGet("departure")]
     [ProducesResponseType(typeof(List<Flight>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult GetByDeparture(string city, DateTime date)
     {
-        try
-        {
-            var flights = _flightService.GetByDepartureCityAndDate(city, date);
+        var flights = _flightService.GetByDepartureCityAndDate(city, date);
 
-            return Ok(flights);
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(exception.Message);
-        }
+        return Ok(flights);
     }
+
     // Пошук рейсів за містом прибуття та датою.
     //
     // Приклад:
     // GET /api/flights/arrival?city=London&date=2026-06-15
     //
-    // Повертає список знайдених рейсів або 404, якщо збігів немає.
+    // Повертає список знайдених рейсів або порожній список, якщо збігів немає.
     [HttpGet("arrival")]
     [ProducesResponseType(typeof(List<Flight>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult GetByArrival(string city, DateTime date)
     {
-        try
-        {
-            var flights = _flightService.GetByArrivalCityAndDate(city, date);
+        var flights = _flightService.GetByArrivalCityAndDate(city, date);
 
-            return Ok(flights);
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(exception.Message);
-        }
+        return Ok(flights);
     }
-
-    // Створення нового рейсу.
-    //
-    // Дані рейсу передаються у тілі HTTP-запиту.
-    //
-    // Повертає:
-    // 201 Created - якщо рейс успішно створено
-    // 400 Bad Request - якщо дані не пройшли валідацію
-    [HttpPost]
-    [ProducesResponseType(typeof(Flight), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public IActionResult AddFlight([FromBody] CreateFlightRequest request)
-    {
-        try
-        {
-            var flight = ToFlight(request);
-
-            _flightService.AddFlight(flight);
-
-            return CreatedAtAction(
-                nameof(GetByNumber),
-                new { flightNumber = flight.FlightNumber },
-                flight);
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(exception.Message);
-        }
-        catch (DuplicateFlightException exception)
-        {
-            return Conflict(exception.Message);
-        }
-    }
-
 
     // Отримати всі рейси.
+    //
+    // Приклад:
+    // GET /api/flights/all
+    //
+    // Повертає всі рейси або порожній список, якщо рейсів немає.
     [HttpGet("all")]
     [ProducesResponseType(typeof(List<Flight>), StatusCodes.Status200OK)]
     public IActionResult GetAll()
@@ -165,70 +101,85 @@ public class FlightsController : ControllerBase
         return Ok(flights);
     }
 
-
     // Пошук рейсів за містом відправлення або прибуття.
+    //
+    // Приклад:
+    // GET /api/flights/city?city=Kyiv
+    //
+    // Повертає рейси, де місто є або містом вильоту, або містом прильоту.
     [HttpGet("city")]
     [ProducesResponseType(typeof(List<Flight>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public IActionResult GetByCity(string city)
     {
-        try
-        {
-            var flights = _flightService.GetByCity(city);
-            return Ok(flights);
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(exception.Message);
-        }
+        var flights = _flightService.GetByCity(city);
+
+        return Ok(flights);
     }
 
+    // Створення нового рейсу.
+    //
+    // Дані рейсу передаються у тілі HTTP-запиту.
+    //
+    // Повертає:
+    // 201 Created - якщо рейс успішно створено
+    // 400 Bad Request - якщо дані не пройшли валідацію
+    // 409 Conflict - якщо рейс з таким номером вже існує
+    [HttpPost]
+    [ProducesResponseType(typeof(Flight), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public IActionResult AddFlight([FromBody] CreateFlightRequest request)
+    {
+        var flight = ToFlight(request);
 
+        _flightService.AddFlight(flight);
+
+        return CreatedAtAction(
+            nameof(GetByNumber),
+            new { flightNumber = flight.FlightNumber },
+            flight);
+    }
 
     // Оновити існуючий рейс за номером.
+    //
+    // Номер рейсу береться з URL, а нові дані рейсу передаються у тілі HTTP-запиту.
+    //
+    // Повертає:
+    // 204 No Content - якщо рейс успішно оновлено
+    // 400 Bad Request - якщо дані не пройшли валідацію
+    // 404 Not Found - якщо рейс не існує
     [HttpPut("{flightNumber}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult UpdateFlight(string flightNumber, [FromBody] UpdateFlightRequest request)
     {
-        try
-        {
-            var flight = ToFlight(request);
+        var flight = ToFlight(request);
 
-            _flightService.UpdateFlight(flightNumber, flight);
-            return NoContent();
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(exception.Message);
-        }
-        catch (KeyNotFoundException exception)
-        {
-            return NotFound(exception.Message);
-        }
+        _flightService.UpdateFlight(flightNumber, flight);
+
+        return NoContent();
     }
 
     // Видалити рейс за номером.
+    //
+    // Приклад:
+    // DELETE /api/flights/PS123
+    //
+    // Повертає:
+    // 204 No Content - якщо рейс успішно видалено
+    // 400 Bad Request - якщо номер рейсу некоректний
+    // 404 Not Found - якщо рейс не існує
     [HttpDelete("{flightNumber}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult DeleteFlight(string flightNumber)
     {
-        try
-        {
-            _flightService.DeleteFlight(flightNumber);
-            return NoContent();
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(exception.Message);
-        }
-        catch (KeyNotFoundException exception)
-        {
-            return NotFound(exception.Message);
-        }
+        _flightService.DeleteFlight(flightNumber);
+
+        return NoContent();
     }
 
     private static Flight ToFlight(CreateFlightRequest request)

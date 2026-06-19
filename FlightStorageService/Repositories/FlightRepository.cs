@@ -232,7 +232,7 @@ public class FlightRepository : IFlightRepository
 
         if (rowsAffected == 0)
         {
-            throw new KeyNotFoundException("Flight not found.");
+            throw new FlightNotFoundException("Flight not found.");
         }
     }
 
@@ -251,7 +251,8 @@ public class FlightRepository : IFlightRepository
 
         if (rowsAffected == 0)
         {
-            throw new KeyNotFoundException("Flight not found.");
+            throw new FlightNotFoundException("Flight not found.");
         }
     }
 }
+

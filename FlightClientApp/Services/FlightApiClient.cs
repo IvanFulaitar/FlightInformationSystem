@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using Microsoft.AspNetCore.Mvc;
 using FlightClientApp.Models;
 
 namespace FlightClientApp.Services;
@@ -97,13 +98,15 @@ public class FlightApiClient : IFlightApiClient
             return;
         }
 
-        var message = await response.Content.ReadAsStringAsync();
+        var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+        var message = problem?.Detail ?? problem?.Title;
 
         if (string.IsNullOrWhiteSpace(message))
         {
             message = $"Request failed with status code {(int)response.StatusCode}.";
         }
 
-        throw new InvalidOperationException(message.Trim('"'));
+        throw new InvalidOperationException(message);
     }
 }
+
